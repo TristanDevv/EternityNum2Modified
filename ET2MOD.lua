@@ -12,6 +12,9 @@
 	List of functions below.
 ]]
 
+--//Short Sientific
+local ShortSientificBegin = "1e300" --when short sientific beginns before it will display EN.short
+
 --// Config
 local expl = 1e200 -- exponent limit
 local ldown = math.log10(expl) -- val for layer down
@@ -831,7 +834,6 @@ end
 
 function EN.short(Value, Digits) : string
 	Value = EN.convert(Value)
-	print(Value)
 	if EN.le(Value, SuffixLimit) then
 		return EN.toSuffix(Value, Digits)
 	end
@@ -1080,6 +1082,35 @@ function EN.shift(Value, digits)
 	d = math.floor(digits * 10^digits) / 10^digits
 	Value.Exp = math.floor(Value.Exp) + math.log10(d)
 	return Value
+end
+
+function EN.SHORT_SIENTIFIC(Value)
+	
+	local string_test = EN.toScientific(EN.fromString(Value)) --convert to sientific first [1.23e1000]
+
+	local exp
+
+	if string.find(string_test, "+") then
+		exp = string.gsub(string.split(string_test, "e")[3], "+", "") -- assuming [3] is exp
+		exp = EN.pow(10, exp)
+	else
+		exp = string.split(string_test, "e")[2]-- assuming [2] is exp
+		exp = exp
+	end
+
+	local front = string.split(string_test, "e")[1]
+	front = string.match(front, "^%d+%.?%d?%d?") or front
+
+	print(exp)
+
+	if EN.me(Value, ShortSientificBegin) then
+		exp = EN.short(exp)
+		return front .. "e" .. exp --res [1.23e1K]
+	else
+		return EN.short(string_test)
+	end
+
+	
 end
 
 
